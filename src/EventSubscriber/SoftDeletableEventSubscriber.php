@@ -21,7 +21,7 @@ final class SoftDeletableEventSubscriber
 
     public function onFlush(OnFlushEventArgs $onFlushEventArgs): void
     {
-        $entityManager = $onFlushEventArgs->getEntityManager();
+        $entityManager = $onFlushEventArgs->getObjectManager();
         $unitOfWork = $entityManager->getUnitOfWork();
 
         foreach ($unitOfWork->getScheduledEntityDeletions() as $entity) {

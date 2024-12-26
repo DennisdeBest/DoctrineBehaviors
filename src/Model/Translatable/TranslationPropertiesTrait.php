@@ -14,7 +14,7 @@ trait TranslationPropertiesTrait
     protected $locale;
 
     /**
-     * Will be mapped to translatable entity by TranslatableSubscriber
+     * Will be mapped to translatable entity by TranslatableEventSubscriber
      *
      * @var TranslatableInterface
      */

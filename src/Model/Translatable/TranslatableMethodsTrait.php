@@ -12,9 +12,9 @@ use Knp\DoctrineBehaviors\Exception\TranslatableException;
 trait TranslatableMethodsTrait
 {
     /**
-     * @return Collection<string, TranslationInterface>
+     * @return ArrayCollection|Collection
      */
-    public function getTranslations()
+    public function getTranslations(): ArrayCollection|Collection
     {
         // initialize collection, usually in ctor
         if ($this->translations === null) {
@@ -27,6 +27,7 @@ trait TranslatableMethodsTrait
     /**
      * @param Collection<string, TranslationInterface> $translations
      * @phpstan-param iterable<TranslationInterface> $translations
+     * @throws TranslatableException
      */
     public function setTranslations(iterable $translations): void
     {

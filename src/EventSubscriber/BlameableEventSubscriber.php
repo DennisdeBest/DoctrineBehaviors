@@ -11,7 +11,7 @@ use Doctrine\ORM\Event\PrePersistEventArgs;
 use Doctrine\ORM\Event\PreRemoveEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Events;
-use Doctrine\ORM\Mapping\ClassMetadataInfo;
+use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\UnitOfWork;
 use Knp\DoctrineBehaviors\Contract\Entity\BlameableInterface;
 use Knp\DoctrineBehaviors\Contract\Provider\UserProviderInterface;
@@ -137,12 +137,12 @@ final class BlameableEventSubscriber
             ->propertyChanged($object, self::DELETED_BY, $oldDeletedBy, $user);
     }
 
-    private function mapEntity(ClassMetadataInfo $classMetadataInfo): void
+    private function mapEntity(ClassMetadata $classMetadata): void
     {
         if ($this->blameableUserEntity !== null && class_exists($this->blameableUserEntity)) {
-            $this->mapManyToOneUser($classMetadataInfo);
+            $this->mapManyToOneUser($classMetadata);
         } else {
-            $this->mapStringUser($classMetadataInfo);
+            $this->mapStringUser($classMetadata);
         }
     }
 
@@ -151,27 +151,27 @@ final class BlameableEventSubscriber
         return $this->entityManager->getUnitOfWork();
     }
 
-    private function mapManyToOneUser(ClassMetadataInfo $classMetadataInfo): void
+    private function mapManyToOneUser(ClassMetadata $classMetadata): void
     {
-        $this->mapManyToOneWithTargetEntity($classMetadataInfo, self::CREATED_BY);
-        $this->mapManyToOneWithTargetEntity($classMetadataInfo, self::UPDATED_BY);
-        $this->mapManyToOneWithTargetEntity($classMetadataInfo, self::DELETED_BY);
+        $this->mapManyToOneWithTargetEntity($classMetadata, self::CREATED_BY);
+        $this->mapManyToOneWithTargetEntity($classMetadata, self::UPDATED_BY);
+        $this->mapManyToOneWithTargetEntity($classMetadata, self::DELETED_BY);
     }
 
-    private function mapStringUser(ClassMetadataInfo $classMetadataInfo): void
+    private function mapStringUser(ClassMetadata $classMetadata): void
     {
-        $this->mapStringNullableField($classMetadataInfo, self::CREATED_BY);
-        $this->mapStringNullableField($classMetadataInfo, self::UPDATED_BY);
-        $this->mapStringNullableField($classMetadataInfo, self::DELETED_BY);
+        $this->mapStringNullableField($classMetadata, self::CREATED_BY);
+        $this->mapStringNullableField($classMetadata, self::UPDATED_BY);
+        $this->mapStringNullableField($classMetadata, self::DELETED_BY);
     }
 
-    private function mapManyToOneWithTargetEntity(ClassMetadataInfo $classMetadataInfo, string $fieldName): void
+    private function mapManyToOneWithTargetEntity(ClassMetadata $classMetadata, string $fieldName): void
     {
-        if ($classMetadataInfo->hasAssociation($fieldName)) {
+        if ($classMetadata->hasAssociation($fieldName)) {
             return;
         }
 
-        $classMetadataInfo->mapManyToOne([
+        $classMetadata->mapManyToOne([
             'fieldName' => $fieldName,
             'targetEntity' => $this->blameableUserEntity,
             'joinColumns' => [
@@ -182,13 +182,13 @@ final class BlameableEventSubscriber
         ]);
     }
 
-    private function mapStringNullableField(ClassMetadataInfo $classMetadataInfo, string $fieldName): void
+    private function mapStringNullableField(ClassMetadata $classMetadata, string $fieldName): void
     {
-        if ($classMetadataInfo->hasField($fieldName)) {
+        if ($classMetadata->hasField($fieldName)) {
             return;
         }
 
-        $classMetadataInfo->mapField([
+        $classMetadata->mapField([
             'fieldName' => $fieldName,
             'type' => 'string',
             'nullable' => true,
